@@ -1,0 +1,182 @@
+
+{% extends "./base.html" %}
+
+{% block content %}
+
+        <!-- Form -->
+        <div class="card shadow-sm p-4 mb-4">
+            <h2 class="text-center">Enter Health Data</h2>
+            <form method="post" class="text-center">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary w-50">Save</button>
+            </form>
+        </div>
+
+        <!-- Weight Graph -->
+        <div class="card shadow-sm p-4 mb-4">
+            <h2 class="text-center">Weight Trend</h2>
+
+            <!-- button to change months -->
+            <div class="d-flex justify-content-between mb-3">
+                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">< Previous Month</a>
+                <h3>{{ selected_month }}</h3>
+                <a href="?month={{ next_month }}" class="btn btn-outline-primary">Next Month ></a>
+            </div>
+
+            <!-- Graph -->
+            <div style="overflow-x: auto; width: 100%;">
+                <canvas id="weightChart" style="max-height: 400px; min-width: 800px;"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Temperature Graph -->
+        <div class="card shadow-sm p-4 mb-4">
+            <h2 class="text-center">Temperature & Menstruation Trend</h2>
+            
+            <!-- button to change months -->
+            <div class="d-flex justify-content-between mb-3">
+                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">< Previous Month</a>
+                <h3>{{ selected_month }}</h3>
+                <a href="?month={{ next_month }}" class="btn btn-outline-primary">Next Month ></a>
+            </div>
+
+            <!-- Graph -->
+            <div style="overflow-x: auto; width: 100%;">
+                <canvas id="tempChart" style="max-height: 400px; min-width: 800px;"></canvas>
+            </div>
+            
+        </div>
+
+    <script>
+
+        // Varidation error message
+        document.addEventListener("DOMContentLoaded", function () {
+            const errors = JSON.parse('{{ errors|escapejs }}');
+            if (Object.keys(errors).length > 0) {
+                let errorMessage = "Form submission failed:\n";
+                for (const [field, messages] of Object.entries(errors)) {
+                    errorMessage += `${field}: ${messages.map(msg => msg.message).join(", ")}\n`;
+                }
+                alert(errorMessage);
+            }
+        });
+
+        // Weight Graph
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            const labels = JSON.parse('{{ dates|escapejs }}');
+            const weights = JSON.parse('{{ weights|escapejs }}');
+
+            const weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: weights,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgb(255, 99, 132, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgb(255, 99, 132)',
+                        pointBorderColor: 'rgb(255, 99,132)',
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Date' },
+                            ticks: { autoSkip: false, maxTicksLimit: 31 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Weight (kg)' },
+                            min: 54, // min 50kg
+                            max: 62, // max 70kg
+                            ticks: { stepSize: 1} //every 1kg
+                        },
+                    },
+                    plugins: {
+                        tooltip: { enabled: true },
+                        legend: { display: true }
+                    }
+                }
+            });
+        });
+
+        // Temperature Graph
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('tempChart').getContext('2d');
+            
+            const labels = JSON.parse('{{ dates|escapejs }}');
+            const temperatures = JSON.parse('{{ temperatures|escapejs }}');
+            const periodDays = JSON.parse('{{ period_days|escapejs }}');
+
+            const tempChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: temperatures,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgb(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: function(context) {
+                            const index = context.dataIndex;
+                            const date = labels[index];
+                            return periodDays.some(pd => pd.endsWith(`-${date}`)) ? 'rgb(255, 99, 132)' : 'rgb(54, 162, 235)';
+                        },
+                        pointBorderColor: function(context) {
+                            const index = context.dataIndex;
+                            const date = labels[index];
+                            return periodDays.some(pd => pd.endsWith(`-${date}`)) ? 'rgb(255, 99, 132)' : 'rgb(54, 162, 235)';
+                        },
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Date' },
+                            ticks: {
+                                autoSkip: false,
+                                maxTicksLimit: 31,
+                                callback: function(value, index, values) {
+                                    const date = labels[index];
+                                    return periodDays.some(pd => pd.endsWith(`-${date}`))
+                                        ? [date, "🌸"]
+                                        :date;
+                                }
+                            }
+                        },
+                        y: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            min: 35, // min 35°C
+                            max: 38, // max 38°C
+                            ticks: { stepSize: 0.1 }
+                        },
+                    },
+                    plugins: {
+                        tooltip: { enabled: true },
+                        legend: { display: true }
+                    }
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}

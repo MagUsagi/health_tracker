@@ -1,0 +1,85 @@
+
+{% extends "./base.html" %}
+
+{% block content %}
+
+<!-- Table -->
+<div class="card shadow-sm p-4 mb-4">
+    <h2 class="text-center">Health Records</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a href="?month={{ prev_month }}" class="btn btn-outline-primary">< Previous Month</a>
+        <h3>{{ selected_month }}</h3>
+        <a href="?month={{ next_month }}" class="btn btn-outline-primary">Next Month ></a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr class="table-secondary">
+                <th>Date</th>
+                <th>Weight (kg)</th>
+                <th>Temperature (°C)</th>
+                <th>Menstruation</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.weight }}</td>
+                <td>{{ record.temperature }}</td>
+                <td>{% if record.menstruation %}🌸{% endif %}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm delete-btn"
+                        data-id="{{ record.id }}"
+                        data-date="{{ record.date }}"
+                        data-weight="{{ record.weight }}"
+                        data-temperature="{{ record.temperature }}"
+                        data-menstruation="{{ record.menstruation }}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No records found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+// delete AJAX
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".delete-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const recordId = this.getAttribute("data-id");
+                    const date = this.getAttribute("data-date");
+                    const weight = this.getAttribute("data-weight");
+                    const temperature = this.getAttribute("data-temperature");
+                    const menstruation = this.getAttribute("data-menstruation");
+
+                    const message = `Do you really want to delete this entry?\n\nDate: ${date}\nWeight: ${weight} kg\nTempereture: ${temperature} °C\nMenstruation: ${menstruation}`;
+
+                    if (confirm(message)) {
+                        fetch(`/delete/${recordId}/`, {
+                            method: "POST",
+                            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest("tr").remove();
+                            } else {
+                                alert("Deletion failed");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+</script>
+
+{% endblock %}

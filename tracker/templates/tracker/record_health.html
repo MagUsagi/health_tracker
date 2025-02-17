@@ -20,15 +20,19 @@
             <h2 class="text-center">Weight Trend</h2>
 
             <!-- button to change months -->
-            <div class="d-flex justify-content-between mb-3">
-                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">< Previous Month</a>
-                <h3>{{ selected_month }}</h3>
-                <a href="?month={{ next_month }}" class="btn btn-outline-primary">Next Month ></a>
+            <div class="d-flex flex-column flex-md-column align-items-center text-center mb-3">
+                <h3 class="m-0">{{ selected_month }}</h3>
+                <div class="d-flex justify-content-between w-100 w-100 mt-2" style="max-width: 400;">
+                    <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm px-3">< Previous</a>
+                    <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm px-3">Next ></a>
+                </div>
             </div>
 
             <!-- Graph -->
-            <div style="overflow-x: auto; width: 100%;">
-                <canvas id="weightChart" style="max-height: 400px; min-width: 800px;"></canvas>
+            <div style="overflow-x: auto; white-space: nowrap;">
+                <div style="width: 800px; height: 400px; position: relative;">
+                    <canvas id="weightChart"></canvas>
+                </div>
             </div>
 
         </div>
@@ -38,15 +42,19 @@
             <h2 class="text-center">Temperature & Menstruation Trend</h2>
             
             <!-- button to change months -->
-            <div class="d-flex justify-content-between mb-3">
-                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">< Previous Month</a>
-                <h3>{{ selected_month }}</h3>
-                <a href="?month={{ next_month }}" class="btn btn-outline-primary">Next Month ></a>
+            <div class="d-flex flex-column flex-md-column align-items-center text-center mb-3">
+                <h3 class="m-0">{{ selected_month }}</h3>
+                <div class="d-flex justify-content-between w-100 w-100 mt-2" style="max-width: 400;">
+                    <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm px-3">< Previous</a>
+                    <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm px-3">Next ></a>
+                </div>
             </div>
 
             <!-- Graph -->
-            <div style="overflow-x: auto; width: 100%;">
-                <canvas id="tempChart" style="max-height: 400px; min-width: 800px;"></canvas>
+            <div style="overflow-x: auto; white-space: nowrap;">
+                <div style="width: 800px; height: 400px; position: relative;">
+                    <canvas id="tempChart"></canvas>
+                </div>
             </div>
             
         </div>
@@ -72,6 +80,8 @@
             const labels = JSON.parse('{{ dates|escapejs }}');
             const weights = JSON.parse('{{ weights|escapejs }}');
 
+            const getPointRadius = () => window.innerWidth < 600 ? 3 : 5;
+
             const weightChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -82,7 +92,7 @@
                         borderColor: 'rgb(255, 99, 132)',
                         backgroundColor: 'rgb(255, 99, 132, 0.2)',
                         borderWidth: 2,
-                        pointRadius: 5,
+                        pointRadius: getPointRadius(),
                         pointBackgroundColor: 'rgb(255, 99, 132)',
                         pointBorderColor: 'rgb(255, 99,132)',
                         spanGaps: true
@@ -90,27 +100,44 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     aspectRatio: 2,
                     scales: {
                         x: {
                             title: { display: true, text: 'Date' },
-                            ticks: { autoSkip: false, maxTicksLimit: 31 }
+                            ticks: {
+                                font: { size: window.innerWidth < 600 ? 10 : 14 },
+                                autoSkip: false,
+                                maxTicksLimit: 31
+                            }
                         },
                         y: {
                             title: { display: true, text: 'Weight (kg)' },
                             min: 54, // min 50kg
                             max: 62, // max 70kg
-                            ticks: { stepSize: 1} //every 1kg
-                        },
+                            ticks: {
+                                font: { size: window.innerWidth < 600 ? 10 : 14 },
+                                stepSize: 1 //every 1kg
+                            }
+                        }
                     },
                     plugins: {
                         tooltip: { enabled: true },
-                        legend: { display: true }
+                        legend: {
+                            labels: {
+                                font: { size: window.innerWidth < 600 ? 10 : 14 }
+                            }
+                        }
                     }
                 }
             });
         });
+       
+        // Dot size updates when screen size changes.
+        window.addEventListener("resize", () => {
+            weightChart.data.datasets[0].pointRadius = getPointRadius();
+            weightChart.update();
+        }); 
 
         // Temperature Graph
         document.addEventListener("DOMContentLoaded", function () {
@@ -119,6 +146,8 @@
             const labels = JSON.parse('{{ dates|escapejs }}');
             const temperatures = JSON.parse('{{ temperatures|escapejs }}');
             const periodDays = JSON.parse('{{ period_days|escapejs }}');
+
+            const getPointRadius = () => window.innerWidth < 600 ? 3 : 5;
 
             const tempChart = new Chart(ctx, {
                 type: 'line',
@@ -130,7 +159,7 @@
                         borderColor: 'rgb(54, 162, 235)',
                         backgroundColor: 'rgb(54, 162, 235, 0.2)',
                         borderWidth: 2,
-                        pointRadius: 5,
+                        pointRadius: getPointRadius(),
                         pointBackgroundColor: function(context) {
                             const index = context.dataIndex;
                             const date = labels[index];
@@ -146,12 +175,13 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     aspectRatio: 2,
                     scales: {
                         x: {
                             title: { display: true, text: 'Date' },
                             ticks: {
+                                font: { size: window.innerWidth < 600 ? 10 : 14 },
                                 autoSkip: false,
                                 maxTicksLimit: 31,
                                 callback: function(value, index, values) {
@@ -166,14 +196,27 @@
                             title: { display: true, text: 'Temperature (°C)' },
                             min: 35, // min 35°C
                             max: 38, // max 38°C
-                            ticks: { stepSize: 0.1 }
-                        },
+                            ticks: { 
+                                font: { size: window.innerWidth < 600 ? 10 : 14 },
+                                stepSize: 0.1
+                            }
+                        }
                     },
                     plugins: {
                         tooltip: { enabled: true },
-                        legend: { display: true }
+                        legend: {
+                            labels: {
+                                font: { size: window.innerWidth < 600 ? 10 : 14 }
+                            }
+                        }
                     }
                 }
+            });
+
+            // Dot size updates when screen size changes.
+            window.addEventListener("resize", () => {
+            weightChart.data.datasets[0].pointRadius = getPointRadius();
+            weightChart.update();
             });
         });
 

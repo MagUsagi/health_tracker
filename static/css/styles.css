@@ -1,0 +1,67 @@
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    .container {
+        padding: 10px;
+    }
+    canvas {
+        height: 300px !important;
+    }
+    .btn {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+    h3 {
+        font-size: 18px;
+    }
+    table {
+        font-size: 12px;
+    }
+    th, td {
+        padding: 5px;
+    }
+
+    .form-check-input {
+        transform: scale(1.5);  /* Make checkbox bigger */
+        margin-right: 10px;
+    }
+}
+
+th, td {
+    text-align: center !important;
+}
+
+.chart-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.chart-wrapper {
+    width: 800px;
+    height: 400px;
+    position: relative;
+    display: inline-block; 
+}
+
+.form-layout{
+    border-radius: 20px;
+    width: 500px;
+}
+
+form {
+    max-width: 500px;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-check-input {
+    transform: scale(1.5);  /* Make checkbox bigger */
+    margin-right: 10px;
+}

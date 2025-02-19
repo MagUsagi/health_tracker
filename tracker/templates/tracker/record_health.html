@@ -1,36 +1,37 @@
 
 {% extends "./base.html" %}
 
+{% load static %}
+{% load crispy_forms_tags %}
+
 {% block content %}
 
         <!-- Form -->
         <div class="card shadow-sm p-4 mb-4">
-            <h2 class="text-center">Enter Health Data</h2>
-            <form method="post" class="text-center">
-                {% csrf_token %}
-                <div class="mb-3">
-                    {{ form.as_p }}
-                </div>
-                <button type="submit" class="btn btn-primary w-50">Save</button>
-            </form>
+            <div class="d-flex justify-content-center">
+                <form method="post" class="w-100">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
         </div>
-
+        
         <!-- Weight Graph -->
         <div class="card shadow-sm p-4 mb-4">
             <h2 class="text-center">Weight Trend</h2>
 
+            <br>
+
             <!-- button to change months -->
-            <div class="d-flex flex-column flex-md-column align-items-center text-center mb-3">
-                <h3 class="m-0">{{ selected_month }}</h3>
-                <div class="d-flex justify-content-between w-100 w-100 mt-2" style="max-width: 400;">
-                    <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm px-3">< Previous</a>
-                    <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm px-3">Next ></a>
-                </div>
+            <div class="d-flex justify-content-between mb-3">
+                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">&nbsp;<&nbsp;</a>
+                <h3>{{ selected_month }}</h3>
+                <a href="?month={{ next_month }}" class="btn btn-outline-primary">&nbsp;>&nbsp;</a>
             </div>
 
             <!-- Graph -->
-            <div style="overflow-x: auto; white-space: nowrap;">
-                <div style="width: 800px; height: 400px; position: relative;">
+            <div class="chart-container">
+                <div class="chart-wrapper">
                     <canvas id="weightChart"></canvas>
                 </div>
             </div>
@@ -39,20 +40,20 @@
 
         <!-- Temperature Graph -->
         <div class="card shadow-sm p-4 mb-4">
-            <h2 class="text-center">Temperature & Menstruation Trend</h2>
+            <h2 class="text-center">Temperature Trend</h2>
+
+            <br>
             
             <!-- button to change months -->
-            <div class="d-flex flex-column flex-md-column align-items-center text-center mb-3">
-                <h3 class="m-0">{{ selected_month }}</h3>
-                <div class="d-flex justify-content-between w-100 w-100 mt-2" style="max-width: 400;">
-                    <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm px-3">< Previous</a>
-                    <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm px-3">Next ></a>
-                </div>
+            <div class="d-flex justify-content-between mb-3">
+                <a href="?month={{ prev_month }}" class="btn btn-outline-primary">&nbsp;<&nbsp;</a>
+                <h3>{{ selected_month }}</h3>
+                <a href="?month={{ next_month }}" class="btn btn-outline-primary">&nbsp;>&nbsp;</a>
             </div>
 
             <!-- Graph -->
-            <div style="overflow-x: auto; white-space: nowrap;">
-                <div style="width: 800px; height: 400px; position: relative;">
+            <div class="chart-container">
+                <div class="chart-wrapper">
                     <canvas id="tempChart"></canvas>
                 </div>
             </div>
@@ -61,15 +62,12 @@
 
     <script>
 
-        // Varidation error message
-        document.addEventListener("DOMContentLoaded", function () {
-            const errors = JSON.parse('{{ errors|escapejs }}');
-            if (Object.keys(errors).length > 0) {
-                let errorMessage = "Form submission failed:\n";
-                for (const [field, messages] of Object.entries(errors)) {
-                    errorMessage += `${field}: ${messages.map(msg => msg.message).join(", ")}\n`;
-                }
-                alert(errorMessage);
+        // input form today's date
+        document.addEventListener("DOMContentLoaded", function() {
+            let today = new Date().toISOString().split('T')[0];
+            let dateInput = document.getElementById("id_date");
+            if (dateInput.value === "") {
+                dateInput.value = today;
             }
         });
 

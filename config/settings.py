@@ -55,7 +55,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'tracker', #Add
+    'crispy_forms', #Add for crispy-forms
+    'crispy_bootstrap5', #Add for crispy-forms
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5" #Add for crispy-forms
+
+CRISPY_TEMPLATE_PACK = "bootstrap5" #Add for crispy-forms
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -123,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Zurich'
 
 USE_I18N = True
 
@@ -133,7 +140,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/sstatic/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -89,6 +90,17 @@ def delete_record(request, record_id):
         record.delete()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
+
+@csrf_exempt
+def edit_record(request):
+    if request.method == 'POST':
+        record = get_object_or_404(HealthRecord, id=request.POST.get('record_id'))
+        record.weight = request.POST.get('weight')
+        record.temperature = request.POST.get('temperature') or None
+        record.menstruation = 'menstruation' in request.POST
+        record.save()
+        return redirect('health_database')
 
 
 def health_database(request):

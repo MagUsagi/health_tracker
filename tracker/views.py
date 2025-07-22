@@ -96,7 +96,7 @@ def delete_record(request, record_id):
 def edit_record(request):
     if request.method == 'POST':
         record = get_object_or_404(HealthRecord, id=request.POST.get('record_id'))
-        record.weight = request.POST.get('weight')
+        record.weight = request.POST.get('weight') or None
         record.temperature = request.POST.get('temperature') or None
         record.menstruation = 'menstruation' in request.POST
         record.save()

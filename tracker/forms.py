@@ -16,6 +16,8 @@ class HealthRecordForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['weight'].required = False
+        self.fields['temperature'].required = False
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_class = "mx-auto w-100 w-md-50 p-4 shadow rounded bg-light"
